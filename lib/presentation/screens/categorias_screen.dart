@@ -1,93 +1,95 @@
+import 'package:demo_app/presentation/widgets/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
+import 'alimentos_screen.dart'; // Importamos la pantalla de alimentos
 
-class CategoriasScreen extends StatelessWidget {
-  final List<Map<String, String>> categorias = [
-    {'nombre': 'Tacos', 'imagen': 'assets/img/logo.png'},
-    {'nombre': 'Tortas', 'imagen': 'assets/img/logo.png'},
-    {'nombre': 'Queso', 'imagen': 'assets/img/logo.png'},
-    {'nombre': 'Especiales', 'imagen': 'assets/img/logo.png'},
-  ];
+class CategoriasScreen extends StatefulWidget {
+  const CategoriasScreen({super.key});
+
+  @override
+  _CategoriasScreenState createState() => _CategoriasScreenState();
+}
+
+class _CategoriasScreenState extends State<CategoriasScreen> {
+  int _currentIndex = 0; // 🟢 Índice del BottomNavigationBar
+
+  void _onNavBarTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+
+    // 🟢 Navegación según la pestaña seleccionada
+    switch (index) {
+      case 0:
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const CategoriasScreen()),
+        );
+        break;
+      case 1:
+        // Aquí iría la pantalla de Pedidos
+        break;
+      case 2:
+        // Aquí iría la pantalla de Cuenta
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Don Taco’s Food'),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Barra de búsqueda
-            TextField(
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
-                hintText: 'Buscar',
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
-            const SizedBox(height: 16),
+    // Lista de categorías
+    List<String> categorias = ['Tacos', 'Especiales', 'Tortas', 'Queso'];
 
-            // Grid de Categorías
-            Expanded(
-              child: GridView.builder(
-                itemCount: categorias.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // 2 columnas
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 1, // Mantiene la proporción cuadrada
-                ),
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      // Aquí puedes navegar a la vista de productos de la categoría seleccionada
-                      print(
-                          "Categoría seleccionada: ${categorias[index]['nombre']}");
-                    },
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            categorias[index]['imagen']!,
-                            height: 80, // Ajusta el tamaño de la imagen
-                            fit: BoxFit.cover,
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            categorias[index]['nombre']!,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                        ],
-                      ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Don Taco’s Food')),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // Dos columnas
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 1,
+          ),
+          itemCount: categorias.length,
+          itemBuilder: (context, index) {
+            return GestureDetector(
+              onTap: () {
+                // Navegar a la pantalla de alimentos con la categoría seleccionada
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AlimentosScreen(
+                      categoriaSeleccionada: categorias[index],
                     ),
-                  );
-                },
+                  ),
+                );
+              },
+              child: Card(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                elevation: 3,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset('assets/img/logo.png', height: 80),
+                    const SizedBox(height: 10),
+                    Text(
+                      categorias[index],
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
 
-      // Bottom Navigation Bar
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0, // Indica qué pestaña está seleccionada
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Menú'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart), label: 'Pedidos'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Cuenta'),
-        ],
-        onTap: (index) {
-          // Aquí puedes cambiar la pantalla según la opción seleccionada
-          print("Opción seleccionada: $index");
-        },
+      // 🟢 Bottom Navigation Bar
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: _onNavBarTapped,
       ),
     );
   }
