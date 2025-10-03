@@ -1,8 +1,11 @@
-import 'package:demo_app/presentation/screens/login.dart';
+import 'package:demo_app/presentation/providers/carrito_provider.dart';
+import 'package:demo_app/presentation/screens/login/login.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MainApp());
+  runApp(ChangeNotifierProvider(
+      create: (_) => CarritoProvider(), child: const MainApp()));
 }
 
 class MainApp extends StatelessWidget {

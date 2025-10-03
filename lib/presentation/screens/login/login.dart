@@ -1,6 +1,6 @@
-import 'package:demo_app/presentation/screens/categorias_screen.dart';
-import 'package:demo_app/presentation/screens/recuperar_cuenta.dart';
-import 'package:demo_app/presentation/screens/registro_cliente.dart';
+import 'package:demo_app/presentation/screens/home/categorias_screen.dart';
+import 'package:demo_app/presentation/screens/home/recuperar_cuenta.dart';
+import 'package:demo_app/presentation/screens/home/registro_cliente.dart';
 import 'package:flutter/material.dart';
 
 class Login extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:demo_app/presentation/widgets/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
-import 'alimentos_screen.dart'; // Importamos la pantalla de alimentos
+import '../pages/food_screen.dart'; // Importamos la pantalla de alimentos
 
 class CategoriasScreen extends StatefulWidget {
   const CategoriasScreen({super.key});

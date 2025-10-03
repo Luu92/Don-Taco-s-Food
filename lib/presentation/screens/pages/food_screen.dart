@@ -1,5 +1,7 @@
+import 'package:demo_app/presentation/providers/carrito_provider.dart';
 import 'package:demo_app/presentation/widgets/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AlimentosScreen extends StatefulWidget {
   final String categoriaSeleccionada;
@@ -75,8 +77,6 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
           )
         ],
       ),
-
-      // 🟢 CUERPO PRINCIPAL
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -133,42 +133,31 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
                     height: 160,
                     child: Row(
                       children: [
-                        // 📌 IMAGEN MÁS GRANDE
                         Image.asset(
                           alimentos[index]['imagen'],
                           width: 80,
                           height: 80,
                         ),
-
                         const SizedBox(width: 10),
-
-                        // 📌 CONTENIDO DEL TEXTO Y BOTONES
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // 🔹 Nombre del alimento
                               Text(
                                 alimentos[index]['nombre'],
                                 style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),
-
-                              // 🔹 Precio
                               Text(
                                 "\$${alimentos[index]['precio']}",
                                 style: const TextStyle(fontSize: 16),
                               ),
-
                               const SizedBox(height: 5),
-
-                              // 🔹 Controles de cantidad y botón "Agregar"
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  // 🔹 Controles de cantidad
                                   Row(
                                     children: [
                                       IconButton(
@@ -188,11 +177,20 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
                                     ],
                                   ),
 
-                                  // 🔹 Botón "Agregar"
+                                  // 🔹 Botón conectado al Provider
                                   ElevatedButton(
                                     style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.yellow),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Provider.of<CarritoProvider>(context,
+                                              listen: false)
+                                          .agregarAlimento({
+                                        'nombre': alimentos[index]['nombre'],
+                                        'precio': alimentos[index]['precio'],
+                                        'cantidad': alimentos[index]
+                                            ['cantidad'],
+                                      });
+                                    },
                                     child: const Text('Agregar'),
                                   ),
                                 ],
@@ -209,7 +207,6 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
           ),
         ],
       ),
-
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,
         onTap: _onNavBarTapped,
