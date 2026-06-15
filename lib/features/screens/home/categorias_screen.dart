@@ -1,42 +1,11 @@
-import 'package:demo_app/presentation/widgets/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
-import '../pages/food_screen.dart'; // Importamos la pantalla de alimentos
+import '../pages/food_screen.dart';
 
-class CategoriasScreen extends StatefulWidget {
+class CategoriasScreen extends StatelessWidget {
   const CategoriasScreen({super.key});
 
   @override
-  _CategoriasScreenState createState() => _CategoriasScreenState();
-}
-
-class _CategoriasScreenState extends State<CategoriasScreen> {
-  int _currentIndex = 0; // 🟢 Índice del BottomNavigationBar
-
-  void _onNavBarTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-
-    // 🟢 Navegación según la pestaña seleccionada
-    switch (index) {
-      case 0:
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const CategoriasScreen()),
-        );
-        break;
-      case 1:
-        // Aquí iría la pantalla de Pedidos
-        break;
-      case 2:
-        // Aquí iría la pantalla de Cuenta
-        break;
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    // Lista de categorías
     List<String> categorias = ['Tacos', 'Especiales', 'Tortas', 'Queso'];
 
     return Scaffold(
@@ -54,12 +23,14 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {
-                // Navegar a la pantalla de alimentos con la categoría seleccionada
+                // 🚀 Ahora mandamos al MainContainer con el BottomNavBar
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AlimentosScreen(
-                      categoriaSeleccionada: categorias[index],
+                    builder: (context) => MainContainer(
+                      initialScreen: AlimentosScreen(
+                        categoriaSeleccionada: categorias[index],
+                      ),
                     ),
                   ),
                 );
@@ -84,12 +55,6 @@ class _CategoriasScreenState extends State<CategoriasScreen> {
             );
           },
         ),
-      ),
-
-      // 🟢 Bottom Navigation Bar
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavBarTapped,
       ),
     );
   }

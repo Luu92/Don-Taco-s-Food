@@ -1,5 +1,5 @@
-import 'package:demo_app/presentation/providers/carrito_provider.dart';
-import 'package:demo_app/presentation/screens/login/login.dart';
+import 'package:demo_app/providers/carrito_provider.dart';
+import 'package:demo_app/features/auth/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
