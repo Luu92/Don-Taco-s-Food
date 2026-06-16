@@ -1,10 +1,15 @@
-import 'package:demo_app/providers/carrito_provider.dart';
+import 'package:demo_app/features/carrito/providers/carrito_provider.dart';
 import 'package:demo_app/features/widgets/bottom_nav_bar.dart';
+import 'package:demo_app/models/alimento.dart';
+import 'package:demo_app/models/categoria.dart';
+import 'package:demo_app/services/alimento_service.dart';
+import 'package:demo_app/services/categoria_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AlimentosScreen extends StatefulWidget {
-  final String categoriaSeleccionada;
+  
+  final Categoria categoriaSeleccionada;
 
   const AlimentosScreen({super.key, required this.categoriaSeleccionada});
 
@@ -13,30 +18,20 @@ class AlimentosScreen extends StatefulWidget {
 }
 
 class _AlimentosScreenState extends State<AlimentosScreen> {
+
+  final AlimentoService _alimentoService = AlimentoService();
   String filtroSeleccionado = 'Lo más vendido';
-  List<String> categorias = ['Tacos', 'Especiales', 'Tortas', 'Queso'];
+  List<Categoria> categorias = CategoriaService().obtenerCategorias();
   late String categoriaActual;
   int _currentIndex = 0;
 
-  List<Map<String, dynamic>> alimentos = [
-    {
-      'nombre': 'Tacos al Pastor',
-      'precio': 50,
-      'imagen': 'assets/img/logo.png',
-      'cantidad': 1
-    },
-    {
-      'nombre': 'Taco Suadero',
-      'precio': 55,
-      'imagen': 'assets/img/logo.png',
-      'cantidad': 1
-    },
-  ];
+  List<Alimento> alimentos = [];
 
   @override
   void initState() {
     super.initState();
-    categoriaActual = widget.categoriaSeleccionada;
+    categoriaActual = widget.categoriaSeleccionada.nombre;
+    alimentos = _alimentoService.obtenerAlimentos();
   }
 
   void actualizarCategoria(String nuevaCategoria) {
@@ -51,19 +46,19 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
     });
   }
 
-  void _incrementarCantidad(int index) {
-    setState(() {
-      alimentos[index]['cantidad']++;
-    });
-  }
+  // void _incrementarCantidad(int index) {
+  //   setState(() {
+  //     alimentos[index]['cantidad']++;
+  //   });
+  // }
 
-  void _disminuirCantidad(int index) {
-    setState(() {
-      if (alimentos[index]['cantidad'] > 1) {
-        alimentos[index]['cantidad']--;
-      }
-    });
-  }
+  // void _disminuirCantidad(int index) {
+  //   setState(() {
+  //     if (alimentos[index]['cantidad'] > 1) {
+  //       alimentos[index]['cantidad']--;
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -87,15 +82,15 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
               scrollDirection: Axis.horizontal,
               itemCount: categorias.length,
               itemBuilder: (context, index) {
-                bool esSeleccionado = categorias[index] == categoriaActual;
+                bool esSeleccionado = categorias[index].nombre == categoriaActual;
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: ChoiceChip(
-                    label: Text(categorias[index]),
+                    label: Text(categorias[index].nombre),
                     selected: esSeleccionado,
                     onSelected: (seleccionado) {
                       if (seleccionado) {
-                        actualizarCategoria(categorias[index]);
+                        actualizarCategoria(categorias[index].nombre);
                       }
                     },
                   ),
@@ -134,7 +129,7 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
                     child: Row(
                       children: [
                         Image.asset(
-                          alimentos[index]['imagen'],
+                          alimentos[index].foto,
                           width: 80,
                           height: 80,
                         ),
@@ -145,12 +140,12 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                alimentos[index]['nombre'],
+                                alimentos[index].nombre,
                                 style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                "\$${alimentos[index]['precio']}",
+                                "\$${alimentos[index].precio}",
                                 style: const TextStyle(fontSize: 16),
                               ),
                               const SizedBox(height: 5),
@@ -160,20 +155,20 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
                                 children: [
                                   Row(
                                     children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.remove),
-                                        onPressed:
-                                            alimentos[index]['cantidad'] > 1
-                                                ? () =>
-                                                    _disminuirCantidad(index)
-                                                : null,
-                                      ),
-                                      Text("${alimentos[index]['cantidad']}"),
-                                      IconButton(
-                                        icon: const Icon(Icons.add),
-                                        onPressed: () =>
-                                            _incrementarCantidad(index),
-                                      ),
+                                      // IconButton(
+                                      //   icon: const Icon(Icons.remove),
+                                      //   onPressed:
+                                      //       alimentos[index]['cantidad'] > 1
+                                      //           ? () =>
+                                      //               _disminuirCantidad(index)
+                                      //           : null,
+                                      // ),
+                                      // Text("${alimentos[index]['cantidad']}"),
+                                      // IconButton(
+                                      //   icon: const Icon(Icons.add),
+                                      //   onPressed: () =>
+                                      //       _incrementarCantidad(index),
+                                      // ),
                                     ],
                                   ),
 
@@ -185,10 +180,9 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
                                       Provider.of<CarritoProvider>(context,
                                               listen: false)
                                           .agregarAlimento({
-                                        'nombre': alimentos[index]['nombre'],
-                                        'precio': alimentos[index]['precio'],
-                                        'cantidad': alimentos[index]
-                                            ['cantidad'],
+                                        'nombre': alimentos[index].nombre,
+                                        'precio': alimentos[index].precio,
+                                        'cantidad': 1,
                                       });
                                     },
                                     child: const Text('Agregar'),

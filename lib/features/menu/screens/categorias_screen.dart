@@ -1,12 +1,13 @@
+import 'package:demo_app/services/categoria_service.dart';
 import 'package:flutter/material.dart';
-import '../pages/food_screen.dart';
+import 'alimentos_screen.dart';
 
 class CategoriasScreen extends StatelessWidget {
   const CategoriasScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    List<String> categorias = ['Tacos', 'Especiales', 'Tortas', 'Queso'];
+    final categorias = CategoriaService().obtenerCategorias();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Don Taco’s Food')),
@@ -23,14 +24,11 @@ class CategoriasScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {
-                // 🚀 Ahora mandamos al MainContainer con el BottomNavBar
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MainContainer(
-                      initialScreen: AlimentosScreen(
-                        categoriaSeleccionada: categorias[index],
-                      ),
+                    builder: (_) => AlimentosScreen(
+                      categoriaSeleccionada: categorias[index],
                     ),
                   ),
                 );
@@ -42,10 +40,10 @@ class CategoriasScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Image.asset('assets/img/logo.png', height: 80),
+                    Image.asset(categorias[index].imagen, height: 80),
                     const SizedBox(height: 10),
                     Text(
-                      categorias[index],
+                      categorias[index].nombre,
                       style: const TextStyle(
                           fontSize: 18, fontWeight: FontWeight.bold),
                     ),

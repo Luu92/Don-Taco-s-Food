@@ -1,4 +1,4 @@
-import 'package:demo_app/providers/carrito_provider.dart';
+import 'package:demo_app/features/carrito/providers/carrito_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

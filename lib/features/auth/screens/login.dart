@@ -1,6 +1,7 @@
-import 'package:demo_app/features/screens/home/categorias_screen.dart';
+import 'package:demo_app/features/menu/screens/categorias_screen.dart';
 import 'package:demo_app/features/auth/screens/recuperar_cuenta.dart';
 import 'package:demo_app/features/auth/screens/registro_cliente.dart';
+import 'package:demo_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class Login extends StatefulWidget {
@@ -9,26 +10,42 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  
+  final AuthService _authService = AuthService();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _login() {
-    final username = _usernameController.text;
-    final password = _passwordController.text;
+  Future<void> _login() async {
 
-    // Aquí es donde llamarías a tu microservicio de usuarios
+  final username = _usernameController.text;
+  final password = _passwordController.text;
 
-    if (username == 'test@gmail.com' && password == '1234') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => CategoriasScreen()),
+  final loginCorrecto =
+      await _authService.login(
+        username,
+        password,
       );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario o contraseña incorrectos')),
-      );
-    }
+
+  if (loginCorrecto) {
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CategoriasScreen(),
+      ),
+    );
+
+  } else {
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Usuario o contraseña incorrectos',
+        ),
+      ),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -117,5 +134,12 @@ class _LoginState extends State<Login> {
         },
       ),
     );
+  }
+
+  @override
+  void dispose(){
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }
