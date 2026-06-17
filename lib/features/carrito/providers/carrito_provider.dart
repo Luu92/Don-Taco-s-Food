@@ -16,4 +16,27 @@ class CarritoProvider extends ChangeNotifier {
     print("Contenido del carrito: $_items");
     notifyListeners();
   }
+
+  double get total {
+    double suma = 0;
+    for (final item in _items.values) {
+      suma += item['precio'] * item['cantidad'];
+    }
+    return suma;
+  }
+
+  void limpiarCarrito() {
+    _items.clear();
+    notifyListeners();
+  }
+
+  int get cantidadProductos {
+    int total = 0;
+
+    for (final item in _items.values) {
+      total += item['cantidad'] as int;
+    }
+
+    return total;
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:demo_app/features/carrito/providers/carrito_provider.dart';
+import 'package:demo_app/features/carrito/screens/carrito_screen.dart';
 import 'package:demo_app/features/widgets/bottom_nav_bar.dart';
 import 'package:demo_app/models/alimento.dart';
 import 'package:demo_app/models/categoria.dart';
@@ -8,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AlimentosScreen extends StatefulWidget {
-  
   final Categoria categoriaSeleccionada;
 
   const AlimentosScreen({super.key, required this.categoriaSeleccionada});
@@ -18,11 +18,10 @@ class AlimentosScreen extends StatefulWidget {
 }
 
 class _AlimentosScreenState extends State<AlimentosScreen> {
-
   final AlimentoService _alimentoService = AlimentoService();
   String filtroSeleccionado = 'Lo más vendido';
   List<Categoria> categorias = CategoriaService().obtenerCategorias();
-  late String categoriaActual;
+  late Categoria categoriaActual;
   int _currentIndex = 0;
 
   List<Alimento> alimentos = [];
@@ -30,11 +29,11 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
   @override
   void initState() {
     super.initState();
-    categoriaActual = widget.categoriaSeleccionada.nombre;
+    categoriaActual = widget.categoriaSeleccionada;
     alimentos = _alimentoService.obtenerAlimentos();
   }
 
-  void actualizarCategoria(String nuevaCategoria) {
+  void actualizarCategoria(Categoria nuevaCategoria) {
     setState(() {
       categoriaActual = nuevaCategoria;
     });
@@ -62,14 +61,63 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final alimentosFiltrados = alimentos
+        .where((alimento) => alimento.idCategoria == categoriaActual.id)
+        .toList();
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(categoriaActual),
+        title: Text(categoriaActual.nombre),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {},
-          )
+          ),
+          IconButton(
+            icon: Stack(
+              children: [
+                const Icon(Icons.shopping_cart),
+                Positioned(
+                  right: 0,
+                  child: Consumer<CarritoProvider>(
+                    builder: (context, carrito, child) {
+                      if (carrito.cantidadProductos == 0) {
+                        return const SizedBox();
+                      }
+
+                      return Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '${carrito.cantidadProductos}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const CarritoScreen(),
+                ),
+              );
+            },
+          ),
         ],
       ),
       body: Column(
@@ -82,7 +130,8 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
               scrollDirection: Axis.horizontal,
               itemCount: categorias.length,
               itemBuilder: (context, index) {
-                bool esSeleccionado = categorias[index].nombre == categoriaActual;
+                bool esSeleccionado =
+                    categorias[index].nombre == categoriaActual;
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: ChoiceChip(
@@ -90,7 +139,7 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
                     selected: esSeleccionado,
                     onSelected: (seleccionado) {
                       if (seleccionado) {
-                        actualizarCategoria(categorias[index].nombre);
+                        actualizarCategoria(categorias[index]);
                       }
                     },
                   ),
@@ -118,7 +167,7 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
           // 🔹 Lista de Alimentos con tarjetas más altas
           Expanded(
             child: ListView.builder(
-              itemCount: alimentos.length,
+              itemCount: alimentosFiltrados.length,
               itemBuilder: (context, index) {
                 return Card(
                   margin:
@@ -129,7 +178,7 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
                     child: Row(
                       children: [
                         Image.asset(
-                          alimentos[index].foto,
+                          alimentosFiltrados[index].foto,
                           width: 80,
                           height: 80,
                         ),
@@ -140,12 +189,12 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                alimentos[index].nombre,
+                                alimentosFiltrados[index].nombre,
                                 style: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                "\$${alimentos[index].precio}",
+                                "\$${alimentosFiltrados[index].precio}",
                                 style: const TextStyle(fontSize: 16),
                               ),
                               const SizedBox(height: 5),
@@ -180,8 +229,10 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
                                       Provider.of<CarritoProvider>(context,
                                               listen: false)
                                           .agregarAlimento({
-                                        'nombre': alimentos[index].nombre,
-                                        'precio': alimentos[index].precio,
+                                        'nombre':
+                                            alimentosFiltrados[index].nombre,
+                                        'precio':
+                                            alimentosFiltrados[index].precio,
                                         'cantidad': 1,
                                       });
                                     },
