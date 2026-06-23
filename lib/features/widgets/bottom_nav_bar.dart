@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+import 'package:demo_app/features/carrito/providers/carrito_provider.dart';
+
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -15,10 +18,24 @@ class CustomBottomNavBar extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       onTap: onTap,
-      items: const [
+      items: [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Menú'),
         BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart), label: 'Carrito'),
+          icon: Consumer<CarritoProvider>(
+            builder: (context, carrito, child) {
+              return Badge(
+                isLabelVisible: carrito.cantidadProductos > 0,
+                label: Text(
+                  '${carrito.cantidadProductos}',
+                ),
+                child: const Icon(
+                  Icons.shopping_cart,
+                ),
+              );
+            },
+          ),
+          label: 'Carrito',
+        ),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Cuenta'),
       ],
     );

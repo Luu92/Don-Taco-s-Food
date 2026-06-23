@@ -1,6 +1,6 @@
+import 'package:demo_app/features/navigation/screens/main_container.dart';
 import 'package:demo_app/services/categoria_service.dart';
 import 'package:flutter/material.dart';
-import 'alimentos_screen.dart';
 
 class CategoriasScreen extends StatelessWidget {
   const CategoriasScreen({super.key});
@@ -27,8 +27,8 @@ class CategoriasScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => AlimentosScreen(
-                      categoriaSeleccionada: categorias[index],
+                    builder: (_) => MainContainer(
+                      categoriaInicial: categorias[index],
                     ),
                   ),
                 );

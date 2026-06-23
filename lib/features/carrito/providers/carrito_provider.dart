@@ -17,6 +17,36 @@ class CarritoProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void incrementarCantidad(String nombre) {
+    if (_items.containsKey(nombre)) {
+      _items[nombre]!['cantidad']++;
+      notifyListeners();
+    }
+  }
+
+  void disminuirCantidad(String nombre) {
+    if (!_items.containsKey(nombre)) return;
+
+    if (_items[nombre]!['cantidad'] > 1) {
+      _items[nombre]!['cantidad']--;
+    } else {
+      _items.remove(nombre);
+    }
+    notifyListeners();
+  }
+
+  void eliminarProducto(String nombre) {
+    _items.remove(nombre);
+    notifyListeners();
+  }
+
+  int cantidadEntregada(Map<String, dynamic> item) {
+    if (item['nombre'] == 'Taco al Pastor') {
+      return item['cantidad'] * 2;
+    }
+    return item['cantidad'];
+  }
+
   double get total {
     double suma = 0;
     for (final item in _items.values) {

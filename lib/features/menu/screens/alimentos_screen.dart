@@ -1,6 +1,5 @@
 import 'package:demo_app/features/carrito/providers/carrito_provider.dart';
 import 'package:demo_app/features/carrito/screens/carrito_screen.dart';
-import 'package:demo_app/features/widgets/bottom_nav_bar.dart';
 import 'package:demo_app/models/alimento.dart';
 import 'package:demo_app/models/categoria.dart';
 import 'package:demo_app/services/alimento_service.dart';
@@ -22,15 +21,18 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
   String filtroSeleccionado = 'Lo más vendido';
   List<Categoria> categorias = CategoriaService().obtenerCategorias();
   late Categoria categoriaActual;
-  int _currentIndex = 0;
 
   List<Alimento> alimentos = [];
+  Map<int, int> cantidadesSeleccionadas = {};
 
   @override
   void initState() {
     super.initState();
     categoriaActual = widget.categoriaSeleccionada;
     alimentos = _alimentoService.obtenerAlimentos();
+    for (var alimento in alimentos) {
+      cantidadesSeleccionadas[alimento.id] = 1;
+    }
   }
 
   void actualizarCategoria(Categoria nuevaCategoria) {
@@ -39,25 +41,21 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
     });
   }
 
-  void _onNavBarTapped(int index) {
+  void incrementarCantidad(int alimentoId) {
     setState(() {
-      _currentIndex = index;
+      cantidadesSeleccionadas[alimentoId] =
+          (cantidadesSeleccionadas[alimentoId] ?? 1) + 1;
     });
   }
 
-  // void _incrementarCantidad(int index) {
-  //   setState(() {
-  //     alimentos[index]['cantidad']++;
-  //   });
-  // }
-
-  // void _disminuirCantidad(int index) {
-  //   setState(() {
-  //     if (alimentos[index]['cantidad'] > 1) {
-  //       alimentos[index]['cantidad']--;
-  //     }
-  //   });
-  // }
+  void disminuirCantidad(int alimentoId) {
+    setState(() {
+      if ((cantidadesSeleccionadas[alimentoId] ?? 1) > 1) {
+        cantidadesSeleccionadas[alimentoId] =
+            cantidadesSeleccionadas[alimentoId]! - 1;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,13 +68,9 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
         title: Text(categoriaActual.nombre),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-          IconButton(
             icon: Stack(
               children: [
-                const Icon(Icons.shopping_cart),
+                const Icon(Icons.shop_2),
                 Positioned(
                   right: 0,
                   child: Consumer<CarritoProvider>(
@@ -131,7 +125,7 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
               itemCount: categorias.length,
               itemBuilder: (context, index) {
                 bool esSeleccionado =
-                    categorias[index].nombre == categoriaActual;
+                    categorias[index].nombre == categoriaActual.nombre;
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 5),
                   child: ChoiceChip(
@@ -202,22 +196,33 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
+                                  // Boton de cantidades a enviar al carrito
                                   Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      // IconButton(
-                                      //   icon: const Icon(Icons.remove),
-                                      //   onPressed:
-                                      //       alimentos[index]['cantidad'] > 1
-                                      //           ? () =>
-                                      //               _disminuirCantidad(index)
-                                      //           : null,
-                                      // ),
-                                      // Text("${alimentos[index]['cantidad']}"),
-                                      // IconButton(
-                                      //   icon: const Icon(Icons.add),
-                                      //   onPressed: () =>
-                                      //       _incrementarCantidad(index),
-                                      // ),
+                                      IconButton(
+                                        icon: const Icon(Icons.remove),
+                                        onPressed: () {
+                                          disminuirCantidad(
+                                            alimentosFiltrados[index].id,
+                                          );
+                                        },
+                                      ),
+                                      Text(
+                                        '${cantidadesSeleccionadas[alimentosFiltrados[index].id]}',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.add),
+                                        onPressed: () {
+                                          incrementarCantidad(
+                                            alimentosFiltrados[index].id,
+                                          );
+                                        },
+                                      ),
                                     ],
                                   ),
 
@@ -233,7 +238,13 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
                                             alimentosFiltrados[index].nombre,
                                         'precio':
                                             alimentosFiltrados[index].precio,
-                                        'cantidad': 1,
+                                        'cantidad': cantidadesSeleccionadas[
+                                                alimentosFiltrados[index].id] ??
+                                            1,
+                                      });
+                                      setState(() {
+                                        cantidadesSeleccionadas[
+                                            alimentosFiltrados[index].id] = 1;
                                       });
                                     },
                                     child: const Text('Agregar'),
@@ -251,10 +262,6 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavBarTapped,
       ),
     );
   }

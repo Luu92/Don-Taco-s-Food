@@ -38,14 +38,111 @@ class _CarritoScreenState extends State<CarritoScreen> {
                     itemCount: carrito.items.length,
                     itemBuilder: (context, index) {
                       final item = carrito.items.values.toList()[index];
-
-                      return ListTile(
-                        title: Text(item['nombre']),
-                        subtitle: Text(
-                          'Cantidad: ${item['cantidad']}',
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
                         ),
-                        trailing: Text(
-                          '\$${item['precio'] * item['cantidad']}',
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Nombre y boton eliminar
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      item['nombre'],
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () {
+                                      carrito.eliminarProducto(
+                                        item['nombre'],
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 10),
+
+                              // Controles cantidad
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.remove),
+                                    onPressed: () {
+                                      carrito.disminuirCantidad(
+                                        item['nombre'],
+                                      );
+                                    },
+                                  ),
+                                  Text(
+                                    '${item['cantidad']}',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.add),
+                                    onPressed: () {
+                                      carrito.incrementarCantidad(
+                                        item['nombre'],
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+
+                              if (item['nombre'] == 'Taco al Pastor') ...[
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade100,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        '🎉 Promoción 2x1 aplicada',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Recibirás: ${item['cantidad'] * 2} tacos',
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+
+                              const SizedBox(height: 10),
+
+                              // Subtotal
+                              Text(
+                                'Subtotal: \$${item['precio'] * item['cantidad']}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
