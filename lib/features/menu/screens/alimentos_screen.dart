@@ -66,53 +66,6 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(categoriaActual.nombre),
-        actions: [
-          IconButton(
-            icon: Stack(
-              children: [
-                const Icon(Icons.shop_2),
-                Positioned(
-                  right: 0,
-                  child: Consumer<CarritoProvider>(
-                    builder: (context, carrito, child) {
-                      if (carrito.cantidadProductos == 0) {
-                        return const SizedBox();
-                      }
-
-                      return Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                        child: Text(
-                          '${carrito.cantidadProductos}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const CarritoScreen(),
-                ),
-              );
-            },
-          ),
-        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

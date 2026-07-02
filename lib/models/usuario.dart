@@ -1,8 +1,7 @@
 class Usuario {
-  late final int id;
-  late final String nombre;
-  late final String correo;
+  final int id;
+  final String nombre;
+  final String correo;
 
-  Usuario(this.id, String nombre, String correo);
-
+  Usuario({required this.id, required this.nombre, required this.correo});
 }

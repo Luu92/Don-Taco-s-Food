@@ -19,24 +19,21 @@ class CustomBottomNavBar extends StatelessWidget {
       currentIndex: currentIndex,
       onTap: onTap,
       items: [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Menú'),
+        const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Menú'),
         BottomNavigationBarItem(
           icon: Consumer<CarritoProvider>(
             builder: (context, carrito, child) {
               return Badge(
                 isLabelVisible: carrito.cantidadProductos > 0,
-                label: Text(
-                  '${carrito.cantidadProductos}',
-                ),
-                child: const Icon(
-                  Icons.shopping_cart,
-                ),
+                label: Text('${carrito.cantidadProductos}'),
+                child: const Icon(Icons.shopping_cart),
               );
             },
           ),
           label: 'Carrito',
         ),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Cuenta'),
+        const BottomNavigationBarItem(
+            icon: Icon(Icons.person), label: 'Cuenta'),
       ],
     );
   }

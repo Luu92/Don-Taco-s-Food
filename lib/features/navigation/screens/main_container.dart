@@ -1,3 +1,5 @@
+import 'package:demo_app/features/cuenta/screens/perfil_screen.dart';
+import 'package:demo_app/features/widgets/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:demo_app/models/categoria.dart';
 import 'package:demo_app/features/menu/screens/alimentos_screen.dart';
@@ -25,34 +27,18 @@ class _MainContainerState extends State<MainContainer> {
         categoriaSeleccionada: widget.categoriaInicial,
       ),
       const CarritoScreen(),
-      const Center(
-        child: Text('Perfil'),
-      ),
+      const PerfilScreen(),
     ];
 
     return Scaffold(
       body: pantallas[currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: CustomBottomNavBar(
         currentIndex: currentIndex,
         onTap: (index) {
           setState(() {
             currentIndex = index;
           });
         },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant_menu),
-            label: 'Menú',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Carrito',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Cuenta',
-          ),
-        ],
       ),
     );
   }

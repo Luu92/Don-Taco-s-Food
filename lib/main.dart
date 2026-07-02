@@ -1,11 +1,23 @@
 import 'package:demo_app/features/carrito/providers/carrito_provider.dart';
 import 'package:demo_app/features/auth/screens/login.dart';
+import 'package:demo_app/features/pedidos/providers/pedido_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider(
-      create: (_) => CarritoProvider(), child: const MainApp()));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => CarritoProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => PedidoProvider(),
+        ),
+      ],
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {

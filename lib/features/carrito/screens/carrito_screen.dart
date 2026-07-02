@@ -1,4 +1,6 @@
 import 'package:demo_app/features/carrito/providers/carrito_provider.dart';
+import 'package:demo_app/features/pedidos/providers/pedido_provider.dart';
+import 'package:demo_app/models/pedido.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -190,6 +192,16 @@ class _CarritoScreenState extends State<CarritoScreen> {
                       comentariosController.text,
                     );
 
+                    final pedido = Pedido(
+                        id: DateTime.now().millisecondsSinceEpoch,
+                        fecha: DateTime.now(),
+                        estado: "Pendiente",
+                        total: carrito.total,
+                        comentario: comentariosController.text,
+                        alimentos: carrito.items.values.toList());
+
+                    context.read<PedidoProvider>().agregarPedido(pedido);
+
                     carrito.limpiarCarrito();
 
                     comentariosController.clear();
@@ -212,40 +224,3 @@ class _CarritoScreenState extends State<CarritoScreen> {
     );
   }
 }
-
-/*
-class CarritoScreen extends StatelessWidget {
-  const CarritoScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final carrito = Provider.of<CarritoProvider>(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Carrito'),
-      ),
-      body: carrito.items.isEmpty
-          ? const Center(
-              child: Text('Carrito vacío'),
-            )
-          : ListView.builder(
-              itemCount: carrito.items.length,
-              itemBuilder: (context, index) {
-                final item = carrito.items.values.toList()[index];
-
-                return ListTile(
-                  title: Text(item['nombre']),
-                  subtitle: Text(
-                    'Cantidad: ${item['cantidad']}',
-                  ),
-                  trailing: Text(
-                    '\$${item['precio'] * item['cantidad']}',
-                  ),
-                );
-              },
-            ),
-    );
-  }
-}
-*/
