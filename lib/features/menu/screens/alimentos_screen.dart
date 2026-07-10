@@ -1,5 +1,4 @@
 import 'package:demo_app/features/carrito/providers/carrito_provider.dart';
-import 'package:demo_app/features/carrito/screens/carrito_screen.dart';
 import 'package:demo_app/models/alimento.dart';
 import 'package:demo_app/models/categoria.dart';
 import 'package:demo_app/services/alimento_service.dart';

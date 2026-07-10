@@ -1,3 +1,4 @@
+import 'package:demo_app/features/direcciones/screens/direcciones_screen.dart';
 import 'package:demo_app/features/pedidos/screens/pedidos_screen.dart';
 import 'package:demo_app/features/cuenta/services/perfil_service.dart';
 import 'package:demo_app/models/usuario.dart';
@@ -62,7 +63,14 @@ class PerfilScreen extends StatelessWidget {
               leading: const Icon(Icons.location_on),
               title: const Text("Mis direcciones"),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const DireccionesScreen(),
+                  ),
+                );
+              },
             ),
           ),
           Card(
