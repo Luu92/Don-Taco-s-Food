@@ -10,42 +10,36 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  
   final AuthService _authService = AuthService();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _login() async {
+    final username = _usernameController.text;
+    final password = _passwordController.text;
 
-  final username = _usernameController.text;
-  final password = _passwordController.text;
-
-  final loginCorrecto =
-      await _authService.login(
-        username,
-        password,
-      );
-
-  if (loginCorrecto) {
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CategoriasScreen(),
-      ),
+    final loginCorrecto = await _authService.login(
+      username,
+      password,
     );
 
-  } else {
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Usuario o contraseña incorrectos',
+    if (loginCorrecto) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const CategoriasScreen(),
         ),
-      ),
-    );
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Usuario o contraseña incorrectos',
+          ),
+        ),
+      );
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +131,7 @@ class _LoginState extends State<Login> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();

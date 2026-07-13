@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AgregarDireccionScreen extends StatefulWidget {
-  const AgregarDireccionScreen({super.key});
+  final Direccion? direccion;
+  const AgregarDireccionScreen({super.key, this.direccion});
 
   @override
   State<AgregarDireccionScreen> createState() => _AgregarDireccionScreenState();
@@ -19,21 +20,48 @@ class _AgregarDireccionScreenState extends State<AgregarDireccionScreen> {
     "Otro",
   ];
 
-  final calleController = TextEditingController();
+  late final TextEditingController calleController;
 
-  final numeroController = TextEditingController();
+  late final TextEditingController numeroController;
 
-  final coloniaController = TextEditingController();
+  late final TextEditingController coloniaController;
 
-  final codigoPostalController = TextEditingController();
+  late final TextEditingController codigoPostalController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final direccion = widget.direccion;
+
+    aliasSeleccionado = direccion?.alias ?? 'Casa';
+
+    calleController = TextEditingController(
+      text: direccion?.calle ?? '',
+    );
+
+    numeroController = TextEditingController(
+      text: direccion?.numero ?? '',
+    );
+
+    coloniaController = TextEditingController(
+      text: direccion?.colonia ?? '',
+    );
+
+    codigoPostalController = TextEditingController(
+      text: direccion?.codigoPostal ?? '',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final direccionProvider = Provider.of<DireccionProvider>(context);
+    final estaEditando = widget.direccion != null;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Nueva dirección"),
+        title: Text(
+          estaEditando ? 'Editar dirección' : 'Nueva dirección',
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
@@ -92,21 +120,29 @@ class _AgregarDireccionScreenState extends State<AgregarDireccionScreen> {
           const SizedBox(height: 25),
           ElevatedButton.icon(
             icon: const Icon(Icons.save),
-            label: const Text(
-              "Guardar dirección",
+            label: Text(
+              estaEditando ? 'Guardar cambios' : 'Guardar dirección',
             ),
             onPressed: () {
-              Direccion direccion = Direccion(
-                  id: 0,
-                  alias: aliasSeleccionado!,
-                  calle: calleController.text,
-                  numero: numeroController.text,
-                  codigoPostal: codigoPostalController.text,
-                  colonia: coloniaController.text,
-                  idComensal: 1,
-                  principal: false);
+              final estaEditando = widget.direccion != null;
 
-              direccionProvider.agregarDireccion(direccion);
+              final direccion = Direccion(
+                id: estaEditando ? widget.direccion!.id : 0,
+                alias: aliasSeleccionado!,
+                calle: calleController.text.trim(),
+                numero: numeroController.text.trim(),
+                codigoPostal: codigoPostalController.text.trim(),
+                colonia: coloniaController.text.trim(),
+                idComensal: estaEditando ? widget.direccion!.idComensal : 1,
+                principal: estaEditando ? widget.direccion!.principal : false,
+              );
+
+              if (estaEditando) {
+                context.read<DireccionProvider>().editarDireccion(direccion);
+              } else {
+                context.read<DireccionProvider>().agregarDireccion(direccion);
+              }
+
               Navigator.pop(context, true);
             },
           ),

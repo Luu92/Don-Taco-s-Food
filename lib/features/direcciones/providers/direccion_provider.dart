@@ -8,9 +8,12 @@ class DireccionProvider extends ChangeNotifier {
 
   List<Direccion> get direcciones => _direcciones;
 
+  bool get tieneDireccionPrincipal => obtenerDireccionPrincipal() != null;
+
+  bool get tieneDirecciones => _direcciones.isNotEmpty;
+
   DireccionProvider() {
     _direcciones = _direccionService.obtenerDirecciones();
-    print("Direcciones cargadas: ${_direcciones.length}");
   }
 
   void agregarDireccion(Direccion direccion) {
@@ -41,9 +44,9 @@ class DireccionProvider extends ChangeNotifier {
   }
 
   void eliminarDireccion(int idDireccion) {
-    _direcciones.removeWhere(
-      (direccion) => direccion.id == idDireccion,
-    );
+    _direccionService.eliminarDireccion(idDireccion);
+
+    _direcciones = _direccionService.obtenerDirecciones();
 
     notifyListeners();
   }
@@ -53,10 +56,17 @@ class DireccionProvider extends ChangeNotifier {
       _direcciones = _direccionService.obtenerDirecciones();
     }
 
-    if (_direcciones.isEmpty) {
-      return null;
+    for (final direccion in _direcciones) {
+      if (direccion.principal) {
+        return direccion;
+      }
     }
 
-    return _direcciones.first;
+    return null;
+  }
+
+  void establecerDireccionPrincipal(Direccion direccion) {
+    _direccionService.establecerDireccionPrincipal(direccion);
+    notifyListeners();
   }
 }

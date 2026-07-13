@@ -12,6 +12,5 @@ class PedidoProvider extends ChangeNotifier {
     _pedidos.add(pedido);
     _pedidoService.guardarPedido(pedido);
     notifyListeners();
-    print("ESTO ES UN PEDIDO:  $_pedidos");
   }
 }
