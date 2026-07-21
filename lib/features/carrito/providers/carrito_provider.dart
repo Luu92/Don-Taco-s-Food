@@ -12,8 +12,7 @@ class CarritoProvider extends ChangeNotifier {
     } else {
       _items[nombre] = Map<String, dynamic>.from(alimento);
     }
-    //SOLO PARA VER EL CONTENIDO DEL CARRITO DESPUES DE AGRGAR COSAS
-    print("Contenido del carrito: $_items");
+
     notifyListeners();
   }
 

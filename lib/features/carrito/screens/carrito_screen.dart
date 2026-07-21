@@ -2,7 +2,11 @@ import 'package:demo_app/features/carrito/providers/carrito_provider.dart';
 import 'package:demo_app/features/direcciones/providers/direccion_provider.dart';
 import 'package:demo_app/features/direcciones/screens/agregar_direccion_screen.dart';
 import 'package:demo_app/features/direcciones/screens/direcciones_screen.dart';
+import 'package:demo_app/features/menu/screens/categorias_screen.dart';
 import 'package:demo_app/features/pedidos/providers/pedido_provider.dart';
+import 'package:demo_app/features/pedidos/screens/pedidos_screen.dart';
+import 'package:demo_app/features/pedidos/widgets/confirmar_pedido_dialog.dart';
+import 'package:demo_app/features/pedidos/widgets/pedido_enviado_dialog.dart';
 import 'package:demo_app/models/pedido.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -275,7 +279,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
                 ),
                 //Confirmar pedido
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (direccionPrincipal == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -287,13 +291,30 @@ class _CarritoScreenState extends State<CarritoScreen> {
                       return;
                     }
 
+                    final confirmar = await showDialog<bool>(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (_) => ConfirmarPedidoDialog(
+                        items: carrito.items,
+                        direccion: direccionPrincipal,
+                        total: carrito.total,
+                        comentario: comentariosController.text,
+                      ),
+                    );
+
+                    if (confirmar != true || !context.mounted) {
+                      return;
+                    }
+
                     final pedido = Pedido(
                         id: DateTime.now().millisecondsSinceEpoch,
                         fecha: DateTime.now(),
-                        estado: "Pendiente",
+                        estado: "Recibido",
                         total: carrito.total,
-                        comentario: comentariosController.text,
-                        alimentos: carrito.items.values.toList(),
+                        comentario: comentariosController.text.trim(),
+                        alimentos: carrito.items.values
+                            .map((item) => Map<String, dynamic>.from(item))
+                            .toList(),
                         direccionEntrega: direccionPrincipal);
 
                     context.read<PedidoProvider>().agregarPedido(pedido);
@@ -302,13 +323,36 @@ class _CarritoScreenState extends State<CarritoScreen> {
 
                     comentariosController.clear();
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Pedido enviado',
-                        ),
-                      ),
+                    final accion = await showDialog<AccionPedidoEnviado>(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (_) {
+                        return PedidoEnviadoDialog(
+                          numeroPedido: pedido.id,
+                        );
+                      },
                     );
+
+                    if (!context.mounted) {
+                      return;
+                    }
+
+                    if (accion == AccionPedidoEnviado.verPedidos) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PedidosScreen(),
+                        ),
+                      );
+                    } else if (accion == AccionPedidoEnviado.seguirComprando) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CategoriasScreen(),
+                        ),
+                        (route) => false,
+                      );
+                    }
                   },
                   child: const Text(
                     'Confirmar pedido',
