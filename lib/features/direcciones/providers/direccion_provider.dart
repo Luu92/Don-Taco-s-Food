@@ -69,4 +69,9 @@ class DireccionProvider extends ChangeNotifier {
     _direccionService.establecerDireccionPrincipal(direccion);
     notifyListeners();
   }
+
+  void limpiar() {
+    _direcciones.clear();
+    notifyListeners();
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:demo_app/features/carrito/providers/carrito_provider.dart';
+import 'package:demo_app/features/carrito/widgets/monto_minimo_dialog.dart';
 import 'package:demo_app/features/direcciones/providers/direccion_provider.dart';
 import 'package:demo_app/features/direcciones/screens/agregar_direccion_screen.dart';
 import 'package:demo_app/features/direcciones/screens/direcciones_screen.dart';
@@ -20,6 +21,7 @@ class CarritoScreen extends StatefulWidget {
 
 class _CarritoScreenState extends State<CarritoScreen> {
   final TextEditingController comentariosController = TextEditingController();
+  static const double montoMinimoDomicilio = 200;
 
   @override
   void dispose() {
@@ -280,6 +282,17 @@ class _CarritoScreenState extends State<CarritoScreen> {
                 //Confirmar pedido
                 ElevatedButton(
                   onPressed: () async {
+                    if (carrito.total < montoMinimoDomicilio) {
+                      await showDialog<void>(
+                        context: context,
+                        builder: (_) => const MontoMinimoDialog(
+                          montoMinimo: montoMinimoDomicilio,
+                        ),
+                      );
+
+                      return;
+                    }
+
                     if (direccionPrincipal == null) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(

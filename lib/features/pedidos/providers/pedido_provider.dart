@@ -13,4 +13,9 @@ class PedidoProvider extends ChangeNotifier {
     _pedidoService.guardarPedido(pedido);
     notifyListeners();
   }
+
+  void limpiar() {
+    pedidos.clear();
+    notifyListeners();
+  }
 }

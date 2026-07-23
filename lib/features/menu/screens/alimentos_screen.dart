@@ -111,97 +111,136 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
           ),
 
           // 🔹 Lista de Alimentos con tarjetas más altas
+
           Expanded(
             child: ListView.builder(
               itemCount: alimentosFiltrados.length,
               itemBuilder: (context, index) {
+                final alimento = alimentosFiltrados[index];
                 return Card(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  child: Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
                     padding: const EdgeInsets.all(10),
-                    height: 160,
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Image.asset(
-                          alimentosFiltrados[index].foto,
-                          width: 80,
-                          height: 80,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: SizedBox(
+                            width: 105,
+                            height: 150,
+                            child: Image.asset(
+                              alimento.foto,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey.shade200,
+                                  alignment: Alignment.center,
+                                  child: const Icon(
+                                    Icons.broken_image_outlined,
+                                    size: 40,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                alimentosFiltrados[index].nombre,
+                                alimento.nombre,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
+                              const SizedBox(height: 4),
                               Text(
-                                "\$${alimentosFiltrados[index].precio}",
-                                style: const TextStyle(fontSize: 16),
+                                alimento.descripcion,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 13),
                               ),
-                              const SizedBox(height: 5),
+                              const SizedBox(height: 4),
+                              Text(
+                                '\$${alimento.precio.toStringAsFixed(0)}',
+                                style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.deepOrangeAccent),
+                              ),
+                              const SizedBox(height: 4),
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  // Boton de cantidades a enviar al carrito
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.remove),
-                                        onPressed: () {
-                                          disminuirCantidad(
-                                            alimentosFiltrados[index].id,
-                                          );
-                                        },
-                                      ),
-                                      Text(
-                                        '${cantidadesSeleccionadas[alimentosFiltrados[index].id]}',
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.add),
-                                        onPressed: () {
-                                          incrementarCantidad(
-                                            alimentosFiltrados[index].id,
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-
-                                  // 🔹 Botón conectado al Provider
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.yellow),
+                                  IconButton(
+                                    constraints: const BoxConstraints(
+                                      minWidth: 36,
+                                      minHeight: 36,
+                                    ),
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(Icons.remove),
                                     onPressed: () {
-                                      Provider.of<CarritoProvider>(context,
-                                              listen: false)
-                                          .agregarAlimento({
-                                        'nombre':
-                                            alimentosFiltrados[index].nombre,
-                                        'precio':
-                                            alimentosFiltrados[index].precio,
-                                        'cantidad': cantidadesSeleccionadas[
-                                                alimentosFiltrados[index].id] ??
-                                            1,
-                                      });
-                                      setState(() {
-                                        cantidadesSeleccionadas[
-                                            alimentosFiltrados[index].id] = 1;
-                                      });
+                                      disminuirCantidad(alimento.id);
                                     },
-                                    child: const Text('Agregar'),
+                                  ),
+                                  Text(
+                                    '${cantidadesSeleccionadas[alimento.id] ?? 1}',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    constraints: const BoxConstraints(
+                                      minWidth: 36,
+                                      minHeight: 36,
+                                    ),
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(Icons.add),
+                                    onPressed: () {
+                                      incrementarCantidad(alimento.id);
+                                    },
                                   ),
                                 ],
+                              ),
+                              SizedBox(
+                                width: double.infinity,
+                                height: 36,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.yellow,
+                                    padding: EdgeInsets.zero,
+                                  ),
+                                  onPressed: () {
+                                    context
+                                        .read<CarritoProvider>()
+                                        .agregarAlimento({
+                                      'nombre': alimento.nombre,
+                                      'precio': alimento.precio,
+                                      'cantidad': cantidadesSeleccionadas[
+                                              alimento.id] ??
+                                          1,
+                                    });
+
+                                    setState(() {
+                                      cantidadesSeleccionadas[alimento.id] = 1;
+                                    });
+                                  },
+                                  child: const Text('Agregar'),
+                                ),
                               ),
                             ],
                           ),

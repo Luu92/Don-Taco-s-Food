@@ -30,4 +30,9 @@ class PerfilProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  void limpiar() {
+    _perfil = null;
+    notifyListeners();
+  }
 }

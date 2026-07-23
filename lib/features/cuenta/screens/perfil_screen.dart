@@ -1,7 +1,11 @@
+import 'package:demo_app/features/auth/screens/login.dart';
+import 'package:demo_app/features/carrito/providers/carrito_provider.dart';
 import 'package:demo_app/features/cuenta/providers/perfil_provider.dart';
 import 'package:demo_app/features/cuenta/screens/editar_perfil_screen.dart';
 import 'package:demo_app/features/cuenta/widgets/perfil_actualizado_dialog.dart';
+import 'package:demo_app/features/direcciones/providers/direccion_provider.dart';
 import 'package:demo_app/features/direcciones/screens/direcciones_screen.dart';
+import 'package:demo_app/features/pedidos/providers/pedido_provider.dart';
 import 'package:demo_app/features/pedidos/screens/pedidos_screen.dart';
 
 import 'package:flutter/material.dart';
@@ -118,12 +122,63 @@ class PerfilScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () async {
+              final confirmar = await mostrarConfirmacionCerrarSesion(context);
+
+              if (!confirmar || !context.mounted) {
+                return;
+              }
+
+              context.read<CarritoProvider>().limpiarCarrito();
+              context.read<PedidoProvider>().limpiar();
+              context.read<DireccionProvider>().limpiar();
+              context.read<PerfilProvider>().limpiar();
+
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => Login(),
+                ),
+                (route) => false,
+              );
+            },
             icon: const Icon(Icons.logout),
             label: const Text('Cerrar sesión'),
           ),
         ],
       ),
     );
+  }
+
+  Future<bool> mostrarConfirmacionCerrarSesion(
+    BuildContext context,
+  ) async {
+    final resultado = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Cerrar sesión'),
+          content: const Text(
+            '¿Estás seguro de que deseas cerrar tu sesión?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Cerrar sesión'),
+            ),
+          ],
+        );
+      },
+    );
+
+    return resultado ?? false;
   }
 }
