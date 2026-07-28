@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:demo_app/features/cuenta/services/perfil_service.dart';
-import 'package:demo_app/models/usuario.dart';
+import 'package:demo_app/core/core.dart';
 
 class PerfilProvider extends ChangeNotifier {
   final PerfilService _perfilService;

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:demo_app/core/core.dart';
 
 class PerfilActualizadoDialog extends StatelessWidget {
   const PerfilActualizadoDialog({

@@ -1,7 +1,4 @@
-import 'package:demo_app/features/direcciones/providers/direccion_provider.dart';
-import 'package:demo_app/models/direccion.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:demo_app/core/core.dart';
 
 class AgregarDireccionScreen extends StatefulWidget {
   final Direccion? direccion;
@@ -116,6 +113,7 @@ class _AgregarDireccionScreenState extends State<AgregarDireccionScreen> {
               labelText: "Código Postal",
               border: OutlineInputBorder(),
             ),
+            maxLength: 5,
           ),
           const SizedBox(height: 25),
           ElevatedButton.icon(
@@ -123,8 +121,21 @@ class _AgregarDireccionScreenState extends State<AgregarDireccionScreen> {
             label: Text(
               estaEditando ? 'Guardar cambios' : 'Guardar dirección',
             ),
-            onPressed: () {
+            onPressed: () async {
+              final direccionProvider = context.read<DireccionProvider>();
               final estaEditando = widget.direccion != null;
+              final tieneCobertura = direccionProvider
+                  .esCodigoPostalValidos(codigoPostalController.text.trim());
+
+              if (!tieneCobertura) {
+                await showDialog<void>(
+                  context: context,
+                  builder: (_) => DireccionFueraCoberturaDialog(
+                    codigoPostal: codigoPostalController.text.trim(),
+                  ),
+                );
+                return;
+              }
 
               final direccion = Direccion(
                 id: estaEditando ? widget.direccion!.id : 0,
@@ -138,9 +149,9 @@ class _AgregarDireccionScreenState extends State<AgregarDireccionScreen> {
               );
 
               if (estaEditando) {
-                context.read<DireccionProvider>().editarDireccion(direccion);
+                direccionProvider.editarDireccion(direccion);
               } else {
-                context.read<DireccionProvider>().agregarDireccion(direccion);
+                direccionProvider.agregarDireccion(direccion);
               }
 
               Navigator.pop(context, true);

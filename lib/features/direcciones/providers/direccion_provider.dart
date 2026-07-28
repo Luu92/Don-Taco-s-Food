@@ -1,6 +1,4 @@
-import 'package:demo_app/models/direccion.dart';
-import 'package:demo_app/services/direccion_service.dart';
-import 'package:flutter/material.dart';
+import 'package:demo_app/core/core.dart';
 
 class DireccionProvider extends ChangeNotifier {
   List<Direccion> _direcciones = [];
@@ -73,5 +71,9 @@ class DireccionProvider extends ChangeNotifier {
   void limpiar() {
     _direcciones.clear();
     notifyListeners();
+  }
+
+  bool esCodigoPostalValidos(String cp) {
+    return _direccionService.esCodigoPostalValidos(cp);
   }
 }

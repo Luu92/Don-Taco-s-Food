@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import '../providers/perfil_provider.dart';
+import 'package:demo_app/core/core.dart';
 
 class EditarPerfilScreen extends StatefulWidget {
   const EditarPerfilScreen({

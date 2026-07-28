@@ -1,5 +1,4 @@
-import 'package:demo_app/models/direccion.dart';
-import 'package:flutter/material.dart';
+import 'package:demo_app/core/core.dart';
 
 class ConfirmarPedidoDialog extends StatelessWidget {
   final Map<String, Map<String, dynamic>> items;

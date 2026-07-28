@@ -1,35 +1,38 @@
-import 'package:demo_app/features/carrito/providers/carrito_provider.dart';
-import 'package:demo_app/models/alimento.dart';
-import 'package:demo_app/models/categoria.dart';
-import 'package:demo_app/services/alimento_service.dart';
-import 'package:demo_app/services/categoria_service.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:demo_app/core/core.dart';
 
 class AlimentosScreen extends StatefulWidget {
   final Categoria categoriaSeleccionada;
 
-  const AlimentosScreen({super.key, required this.categoriaSeleccionada});
+  const AlimentosScreen({
+    super.key,
+    required this.categoriaSeleccionada,
+  });
 
   @override
-  _AlimentosScreenState createState() => _AlimentosScreenState();
+  State<AlimentosScreen> createState() => _AlimentosScreenState();
 }
 
 class _AlimentosScreenState extends State<AlimentosScreen> {
   final AlimentoService _alimentoService = AlimentoService();
+
   String filtroSeleccionado = 'Lo más vendido';
-  List<Categoria> categorias = CategoriaService().obtenerCategorias();
+
+  final List<Categoria> categorias = CategoriaService().obtenerCategorias();
+
   late Categoria categoriaActual;
 
   List<Alimento> alimentos = [];
-  Map<int, int> cantidadesSeleccionadas = {};
+
+  final Map<int, int> cantidadesSeleccionadas = {};
 
   @override
   void initState() {
     super.initState();
+
     categoriaActual = widget.categoriaSeleccionada;
     alimentos = _alimentoService.obtenerAlimentos();
-    for (var alimento in alimentos) {
+
+    for (final alimento in alimentos) {
       cantidadesSeleccionadas[alimento.id] = 1;
     }
   }
@@ -37,6 +40,11 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
   void actualizarCategoria(Categoria nuevaCategoria) {
     setState(() {
       categoriaActual = nuevaCategoria;
+
+      // Reinicia los contadores al cambiar de categoría.
+      for (final alimento in alimentos) {
+        cantidadesSeleccionadas[alimento.id] = 1;
+      }
     });
   }
 
@@ -48,211 +56,518 @@ class _AlimentosScreenState extends State<AlimentosScreen> {
   }
 
   void disminuirCantidad(int alimentoId) {
+    final cantidadActual = cantidadesSeleccionadas[alimentoId] ?? 1;
+
+    if (cantidadActual <= 1) {
+      return;
+    }
+
     setState(() {
-      if ((cantidadesSeleccionadas[alimentoId] ?? 1) > 1) {
-        cantidadesSeleccionadas[alimentoId] =
-            cantidadesSeleccionadas[alimentoId]! - 1;
-      }
+      cantidadesSeleccionadas[alimentoId] = cantidadActual - 1;
     });
+  }
+
+  List<Alimento> obtenerAlimentosFiltrados() {
+    final resultado = alimentos
+        .where(
+          (alimento) => alimento.idCategoria == categoriaActual.id,
+        )
+        .toList();
+
+    switch (filtroSeleccionado) {
+      case 'Menor precio':
+        resultado.sort(
+          (a, b) => a.precio.compareTo(b.precio),
+        );
+        break;
+
+      case 'Mayor precio':
+        resultado.sort(
+          (a, b) => b.precio.compareTo(a.precio),
+        );
+        break;
+
+      case 'Lo más vendido':
+        resultado.sort(
+          (a, b) => b.ranking.compareTo(a.ranking),
+        );
+        break;
+    }
+
+    return resultado;
+  }
+
+  bool tienePromocion(Alimento alimento) {
+    return alimento.nombre.trim().toLowerCase() == 'taco al pastor';
+  }
+
+  void agregarAlCarrito(Alimento alimento) {
+    final cantidad = cantidadesSeleccionadas[alimento.id] ?? 1;
+
+    context.read<CarritoProvider>().agregarAlimento({
+      'nombre': alimento.nombre,
+      'precio': alimento.precio,
+      'cantidad': cantidad,
+    });
+
+    setState(() {
+      cantidadesSeleccionadas[alimento.id] = 1;
+    });
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            '$cantidad ${cantidad == 1 ? 'producto agregado' : 'productos agregados'} al carrito',
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
   }
 
   @override
   Widget build(BuildContext context) {
-    final alimentosFiltrados = alimentos
-        .where((alimento) => alimento.idCategoria == categoriaActual.id)
-        .toList();
+    final alimentosFiltrados = obtenerAlimentosFiltrados();
+
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(categoriaActual.nombre),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 🔹 Menú de Categorías
-          SizedBox(
-            height: 50,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: categorias.length,
-              itemBuilder: (context, index) {
-                bool esSeleccionado =
-                    categorias[index].nombre == categoriaActual.nombre;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: ChoiceChip(
-                    label: Text(categorias[index].nombre),
-                    selected: esSeleccionado,
-                    onSelected: (seleccionado) {
-                      if (seleccionado) {
-                        actualizarCategoria(categorias[index]);
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Categorías
+            SizedBox(
+              height: 58,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSizes.spacingMd,
+                  vertical: AppSizes.spacingSm,
+                ),
+                scrollDirection: Axis.horizontal,
+                itemCount: categorias.length,
+                separatorBuilder: (_, __) => const SizedBox(
+                  width: AppSizes.spacingSm,
+                ),
+                itemBuilder: (context, index) {
+                  final categoria = categorias[index];
+
+                  final esSeleccionada = categoria.id == categoriaActual.id;
+
+                  return ChoiceChip(
+                    label: Text(categoria.nombre),
+                    selected: esSeleccionada,
+                    showCheckmark: false,
+                    selectedColor: AppColors.primary,
+                    backgroundColor: AppColors.surface,
+                    side: BorderSide(
+                      color:
+                          esSeleccionada ? AppColors.primary : AppColors.border,
+                    ),
+                    labelStyle: TextStyle(
+                      color:
+                          esSeleccionada ? Colors.white : AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        AppSizes.radiusLarge,
+                      ),
+                    ),
+                    onSelected: (seleccionada) {
+                      if (seleccionada) {
+                        actualizarCategoria(categoria);
                       }
                     },
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
 
-          // 🔹 Filtro de ordenamiento
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: DropdownButton<String>(
-              value: filtroSeleccionado,
-              items: ['Lo más vendido', 'Menor precio', 'Mayor precio']
-                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-                  .toList(),
-              onChanged: (valor) {
-                setState(() {
-                  filtroSeleccionado = valor!;
-                });
-              },
-            ),
-          ),
+            const Divider(height: 1),
 
-          // 🔹 Lista de Alimentos con tarjetas más altas
-
-          Expanded(
-            child: ListView.builder(
-              itemCount: alimentosFiltrados.length,
-              itemBuilder: (context, index) {
-                final alimento = alimentosFiltrados[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Row(
+            // Encabezado y filtro
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSizes.spacingMd,
+                AppSizes.spacingMd,
+                AppSizes.spacingMd,
+                AppSizes.spacingSm,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: SizedBox(
-                            width: 105,
-                            height: 150,
-                            child: Image.asset(
-                              alimento.foto,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: Colors.grey.shade200,
-                                  alignment: Alignment.center,
-                                  child: const Icon(
-                                    Icons.broken_image_outlined,
-                                    size: 40,
-                                  ),
-                                );
-                              },
-                            ),
+                        Text(
+                          categoriaActual.nombre,
+                          style: textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                alimento.nombre,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                alimento.descripcion,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '\$${alimento.precio.toStringAsFixed(0)}',
-                                style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.deepOrangeAccent),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    constraints: const BoxConstraints(
-                                      minWidth: 36,
-                                      minHeight: 36,
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                    icon: const Icon(Icons.remove),
-                                    onPressed: () {
-                                      disminuirCantidad(alimento.id);
-                                    },
-                                  ),
-                                  Text(
-                                    '${cantidadesSeleccionadas[alimento.id] ?? 1}',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    constraints: const BoxConstraints(
-                                      minWidth: 36,
-                                      minHeight: 36,
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                    icon: const Icon(Icons.add),
-                                    onPressed: () {
-                                      incrementarCantidad(alimento.id);
-                                    },
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                width: double.infinity,
-                                height: 36,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.yellow,
-                                    padding: EdgeInsets.zero,
-                                  ),
-                                  onPressed: () {
-                                    context
-                                        .read<CarritoProvider>()
-                                        .agregarAlimento({
-                                      'nombre': alimento.nombre,
-                                      'precio': alimento.precio,
-                                      'cantidad': cantidadesSeleccionadas[
-                                              alimento.id] ??
-                                          1,
-                                    });
-
-                                    setState(() {
-                                      cantidadesSeleccionadas[alimento.id] = 1;
-                                    });
-                                  },
-                                  child: const Text('Agregar'),
-                                ),
-                              ),
-                            ],
+                        const SizedBox(
+                          height: AppSizes.spacingXs,
+                        ),
+                        Text(
+                          '${alimentosFiltrados.length} opciones disponibles',
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
                     ),
                   ),
-                );
-              },
+                  const SizedBox(
+                    width: AppSizes.spacingMd,
+                  ),
+                  SizedBox(
+                    width: 155,
+                    child: DropdownButtonFormField<String>(
+                      value: filtroSeleccionado,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Ordenar',
+                        prefixIcon: Icon(
+                          Icons.sort_rounded,
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'Lo más vendido',
+                          child: Text(
+                            'Más vendido',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Menor precio',
+                          child: Text(
+                            'Menor precio',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        DropdownMenuItem(
+                          value: 'Mayor precio',
+                          child: Text(
+                            'Mayor precio',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                      onChanged: (valor) {
+                        if (valor == null) {
+                          return;
+                        }
+
+                        setState(() {
+                          filtroSeleccionado = valor;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+
+            // Lista de alimentos
+            Expanded(
+              child: alimentosFiltrados.isEmpty
+                  ? const _AlimentosVacios()
+                  : ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSizes.spacingMd,
+                        AppSizes.spacingSm,
+                        AppSizes.spacingMd,
+                        AppSizes.spacingLg,
+                      ),
+                      itemCount: alimentosFiltrados.length,
+                      separatorBuilder: (_, __) => const SizedBox(
+                        height: AppSizes.spacingMd,
+                      ),
+                      itemBuilder: (context, index) {
+                        final alimento = alimentosFiltrados[index];
+
+                        final cantidad =
+                            cantidadesSeleccionadas[alimento.id] ?? 1;
+
+                        return Card(
+                          margin: EdgeInsets.zero,
+                          clipBehavior: Clip.antiAlias,
+                          child: Padding(
+                            padding: const EdgeInsets.all(
+                              AppSizes.spacingSm,
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(
+                                        AppSizes.radiusMedium,
+                                      ),
+                                      child: SizedBox(
+                                        width: 115,
+                                        height: 175,
+                                        child: Image.asset(
+                                          alimento.foto,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (
+                                            context,
+                                            error,
+                                            stackTrace,
+                                          ) {
+                                            return Container(
+                                              color: AppColors.background,
+                                              alignment: Alignment.center,
+                                              child: const Icon(
+                                                Icons.broken_image_outlined,
+                                                size: 42,
+                                                color: AppColors.textSecondary,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                    if (tienePromocion(
+                                      alimento,
+                                    ))
+                                      Positioned(
+                                        top: 8,
+                                        left: 8,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 9,
+                                            vertical: 5,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.secondary,
+                                            borderRadius: BorderRadius.circular(
+                                              AppSizes.radiusSmall,
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            '2×1',
+                                            style: TextStyle(
+                                              color: AppColors.textPrimary,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  width: AppSizes.spacingMd,
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        alimento.nombre,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      ),
+
+                                      const SizedBox(
+                                        height: AppSizes.spacingXs,
+                                      ),
+
+                                      Text(
+                                        alimento.descripcion,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          height: 1.35,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+
+                                      const SizedBox(
+                                        height: AppSizes.spacingSm,
+                                      ),
+
+                                      Text(
+                                        '\$${alimento.precio.toStringAsFixed(0)}',
+                                        style: const TextStyle(
+                                          fontSize: 21,
+                                          fontWeight: FontWeight.w800,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+
+                                      const SizedBox(
+                                        height: AppSizes.spacingSm,
+                                      ),
+
+                                      // Selector de cantidad
+                                      Container(
+                                        height: 38,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.background,
+                                          borderRadius: BorderRadius.circular(
+                                            AppSizes.radiusMedium,
+                                          ),
+                                          border: Border.all(
+                                            color: AppColors.border,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            IconButton(
+                                              tooltip: 'Disminuir',
+                                              padding: EdgeInsets.zero,
+                                              constraints: const BoxConstraints(
+                                                minWidth: 38,
+                                                minHeight: 38,
+                                              ),
+                                              onPressed: cantidad > 1
+                                                  ? () {
+                                                      disminuirCantidad(
+                                                        alimento.id,
+                                                      );
+                                                    }
+                                                  : null,
+                                              icon: const Icon(
+                                                Icons.remove,
+                                                size: 19,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 26,
+                                              child: Text(
+                                                '$cantidad',
+                                                textAlign: TextAlign.center,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ),
+                                            IconButton(
+                                              tooltip: 'Aumentar',
+                                              padding: EdgeInsets.zero,
+                                              constraints: const BoxConstraints(
+                                                minWidth: 38,
+                                                minHeight: 38,
+                                              ),
+                                              onPressed: () {
+                                                incrementarCantidad(
+                                                  alimento.id,
+                                                );
+                                              },
+                                              icon: const Icon(
+                                                Icons.add,
+                                                size: 19,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+
+                                      const SizedBox(
+                                        height: AppSizes.spacingSm,
+                                      ),
+
+                                      SizedBox(
+                                        width: double.infinity,
+                                        height: 42,
+                                        child: ElevatedButton.icon(
+                                          onPressed: () {
+                                            agregarAlCarrito(
+                                              alimento,
+                                            );
+                                          },
+                                          icon: const Icon(
+                                            Icons.add_shopping_cart_rounded,
+                                            size: 19,
+                                          ),
+                                          label: const Text(
+                                            'Agregar',
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AlimentosVacios extends StatelessWidget {
+  const _AlimentosVacios();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(
+          AppSizes.spacingLg,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.no_food_outlined,
+              size: 60,
+              color: AppColors.textSecondary,
+            ),
+            SizedBox(
+              height: AppSizes.spacingMd,
+            ),
+            Text(
+              'No hay alimentos disponibles',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            SizedBox(
+              height: AppSizes.spacingXs,
+            ),
+            Text(
+              'Prueba seleccionando otra categoría.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

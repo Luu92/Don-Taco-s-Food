@@ -1,10 +1,4 @@
-import 'package:demo_app/features/carrito/providers/carrito_provider.dart';
-import 'package:demo_app/features/auth/screens/login.dart';
-import 'package:demo_app/features/cuenta/providers/perfil_provider.dart';
-import 'package:demo_app/features/direcciones/providers/direccion_provider.dart';
-import 'package:demo_app/features/pedidos/providers/pedido_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:demo_app/core/core.dart';
 
 void main() {
   runApp(
@@ -32,8 +26,8 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.black),
+        theme: AppTheme.lightTheme,
         debugShowCheckedModeBanner: false,
-        home: Login());
+        home: const Login());
   }
 }

@@ -1,4 +1,4 @@
-import 'package:demo_app/models/alimento.dart';
+import 'package:demo_app/core/core.dart';
 
 class AlimentoService {
   List<Alimento> obtenerAlimentos() {

@@ -80,4 +80,15 @@ class DireccionService {
       );
     }
   }
+
+  bool esCodigoPostalValidos(String cp) {
+    bool isPresent = false;
+    List<String> codigoPostales = ['09700', '09750', '09704', '09705'];
+    for (var codePostal in codigoPostales) {
+      if (codePostal == cp) {
+        isPresent = true;
+      }
+    }
+    return isPresent;
+  }
 }

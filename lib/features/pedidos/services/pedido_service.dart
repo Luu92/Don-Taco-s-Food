@@ -1,4 +1,4 @@
-import 'package:demo_app/models/pedido.dart';
+import 'package:demo_app/core/core.dart';
 
 class PedidoService {
   final List<Pedido> _pedidos = [];

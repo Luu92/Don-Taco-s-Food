@@ -1,9 +1,4 @@
-import 'package:demo_app/features/cuenta/screens/perfil_screen.dart';
-import 'package:demo_app/features/widgets/bottom_nav_bar.dart';
-import 'package:flutter/material.dart';
-import 'package:demo_app/models/categoria.dart';
-import 'package:demo_app/features/menu/screens/alimentos_screen.dart';
-import 'package:demo_app/features/carrito/screens/carrito_screen.dart';
+import 'package:demo_app/core/core.dart';
 
 class MainContainer extends StatefulWidget {
   final Categoria categoriaInicial;

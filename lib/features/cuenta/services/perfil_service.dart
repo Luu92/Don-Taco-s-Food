@@ -1,4 +1,4 @@
-import 'package:demo_app/models/usuario.dart';
+import 'package:demo_app/core/core.dart';
 
 class PerfilService {
   Usuario _usuario = Usuario(

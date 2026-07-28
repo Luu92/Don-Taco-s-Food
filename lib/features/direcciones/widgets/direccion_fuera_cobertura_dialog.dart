@@ -1,29 +1,28 @@
 import 'package:demo_app/core/core.dart';
 
-class MontoMinimoDialog extends StatelessWidget {
-  final double montoMinimo;
-
-  const MontoMinimoDialog({
+class DireccionFueraCoberturaDialog extends StatelessWidget {
+  const DireccionFueraCoberturaDialog({
     super.key,
-    this.montoMinimo = 200,
+    required this.codigoPostal,
   });
+
+  final String codigoPostal;
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       icon: const Icon(
-        Icons.delivery_dining_outlined,
-        size: 58,
+        Icons.location_off_outlined,
         color: Colors.orange,
+        size: 56,
       ),
       title: const Text(
-        'Monto mínimo de compra',
+        'Dirección fuera de cobertura',
         textAlign: TextAlign.center,
       ),
       content: Text(
-        'El monto mínimo para solicitar servicio a domicilio es de '
-        '\$${montoMinimo.toStringAsFixed(0)}.\n\n'
-        'para continuar con el pedido.',
+        'Por el momento, el servicio a domicilio no está disponible '
+        'para el código postal $codigoPostal.',
         textAlign: TextAlign.center,
       ),
       actionsAlignment: MainAxisAlignment.center,
@@ -32,7 +31,7 @@ class MontoMinimoDialog extends StatelessWidget {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: const Text('Seguir comprando'),
+          child: const Text('Entendido'),
         ),
       ],
     );
