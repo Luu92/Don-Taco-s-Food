@@ -195,7 +195,7 @@ class _LoginState extends State<Login> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => RecuperarCuenta(),
+                                    builder: (_) => const RecuperarCuenta(),
                                   ),
                                 );
                               },
@@ -239,7 +239,7 @@ class _LoginState extends State<Login> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => RegistroCliente(),
+                                      builder: (_) => const RegistroCliente(),
                                     ),
                                   );
                                 },
