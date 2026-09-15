@@ -22,6 +22,7 @@ class DireccionProvider extends ChangeNotifier {
         numero: direccion.numero,
         codigoPostal: direccion.codigoPostal,
         colonia: direccion.colonia,
+        referencia: direccion.referencia,
         idComensal: direccion.idComensal,
         principal: _direcciones.isEmpty);
 

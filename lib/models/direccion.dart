@@ -11,6 +11,8 @@ class Direccion {
 
   final String colonia;
 
+  final String referencia;
+
   final int idComensal;
   final bool principal;
 
@@ -21,6 +23,7 @@ class Direccion {
       required this.numero,
       required this.codigoPostal,
       required this.colonia,
+      required this.referencia,
       required this.idComensal,
       required this.principal});
 }

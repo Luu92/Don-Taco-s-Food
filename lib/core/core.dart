@@ -34,6 +34,8 @@ export 'package:demo_app/features/carrito/screens/carrito_screen.dart';
 export 'package:demo_app/features/pedidos/widgets/estado_pedido_widget.dart';
 export 'package:demo_app/features/pedidos/screens/pedido_detalle_screen.dart';
 export 'package:demo_app/features/pedidos/widgets/pedidos_vacios_dialog.dart';
+export 'package:demo_app/features/pedidos/widgets/confirmar_entrega_dialog.dart';
+export 'package:demo_app/features/pedidos/widgets/confirmar_entrega_slider.dart';
 
 //Services
 export 'package:demo_app/services/auth_service.dart';

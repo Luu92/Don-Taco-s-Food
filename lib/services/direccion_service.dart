@@ -19,6 +19,7 @@ class DireccionService {
         numero: direccion.numero,
         codigoPostal: direccion.codigoPostal,
         colonia: direccion.colonia,
+        referencia: direccion.referencia,
         idComensal: direccion.idComensal,
         principal: direccion.principal,
       ),
@@ -46,6 +47,7 @@ class DireccionService {
         numero: direccionActual.numero,
         codigoPostal: direccionActual.codigoPostal,
         colonia: direccionActual.colonia,
+        referencia: direccionActual.referencia,
         idComensal: direccionActual.idComensal,
         principal: direccionActual.id == direccionSeleccionada.id,
       );
@@ -74,6 +76,7 @@ class DireccionService {
         calle: primeraDireccion.calle,
         numero: primeraDireccion.numero,
         codigoPostal: primeraDireccion.codigoPostal,
+        referencia: primeraDireccion.referencia,
         colonia: primeraDireccion.colonia,
         idComensal: primeraDireccion.idComensal,
         principal: true,

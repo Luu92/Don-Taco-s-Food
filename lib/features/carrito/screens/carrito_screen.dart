@@ -226,7 +226,7 @@ class _CarritoScreenState extends State<CarritoScreen> {
     final pedido = Pedido(
       id: DateTime.now().millisecondsSinceEpoch,
       fecha: DateTime.now(),
-      estado: 'Recibido',
+      estado: 'Cancelado',
       total: carrito.total,
       comentario: comentariosController.text.trim(),
       alimentos: carrito.items.values

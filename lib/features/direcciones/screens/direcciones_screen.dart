@@ -148,6 +148,14 @@ class DireccionesScreen extends StatelessWidget {
                                     color: AppColors.textSecondary,
                                   ),
                                 ),
+                                const SizedBox(
+                                  height: AppSizes.spacingXs,
+                                ),
+                                Text(
+                                  direccion.referencia,
+                                  style: const TextStyle(
+                                      color: AppColors.textSecondary),
+                                ),
                               ],
                             ),
                           ),

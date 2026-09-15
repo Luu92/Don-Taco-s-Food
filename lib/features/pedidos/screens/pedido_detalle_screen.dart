@@ -12,10 +12,15 @@ class PedidoDetalleScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
+    final pedidoActual = context.watch<PedidoProvider>().pedidos.firstWhere(
+          (p) => p.id == pedido.id,
+          orElse: () => pedido,
+        );
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Pedido #${pedido.id}',
+          'Pedido #${pedidoActual.id}',
         ),
       ),
       body: SafeArea(
@@ -60,7 +65,7 @@ class PedidoDetalleScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Pedido #${pedido.id}',
+                                'Pedido #${pedidoActual.id}',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: textTheme.titleLarge?.copyWith(
@@ -72,7 +77,7 @@ class PedidoDetalleScreen extends StatelessWidget {
                                 height: AppSizes.spacingXs,
                               ),
                               Text(
-                                _formatearFecha(pedido.fecha),
+                                _formatearFecha(pedidoActual.fecha),
                                 style: textTheme.bodyMedium?.copyWith(
                                   color: AppColors.textSecondary,
                                 ),
@@ -86,7 +91,7 @@ class PedidoDetalleScreen extends StatelessWidget {
                       height: AppSizes.spacingMd,
                     ),
                     EstadoPedidoWidget(
-                      estado: pedido.estado,
+                      estado: pedidoActual.estado,
                     ),
                   ],
                 ),
@@ -152,7 +157,7 @@ class PedidoDetalleScreen extends StatelessWidget {
                               ),
                               Expanded(
                                 child: Text(
-                                  pedido.direccionEntrega.alias,
+                                  pedidoActual.direccionEntrega.alias,
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
@@ -166,8 +171,8 @@ class PedidoDetalleScreen extends StatelessWidget {
                             height: AppSizes.spacingSm,
                           ),
                           Text(
-                            '${pedido.direccionEntrega.calle} '
-                            '${pedido.direccionEntrega.numero}',
+                            '${pedidoActual.direccionEntrega.calle} '
+                            '${pedidoActual.direccionEntrega.numero}',
                             style: const TextStyle(
                               color: AppColors.textPrimary,
                             ),
@@ -176,7 +181,7 @@ class PedidoDetalleScreen extends StatelessWidget {
                             height: AppSizes.spacingXs,
                           ),
                           Text(
-                            pedido.direccionEntrega.colonia,
+                            pedidoActual.direccionEntrega.colonia,
                             style: const TextStyle(
                               color: AppColors.textSecondary,
                             ),
@@ -185,7 +190,7 @@ class PedidoDetalleScreen extends StatelessWidget {
                             height: AppSizes.spacingXs,
                           ),
                           Text(
-                            'CP ${pedido.direccionEntrega.codigoPostal}',
+                            'CP ${pedidoActual.direccionEntrega.codigoPostal}',
                             style: const TextStyle(
                               color: AppColors.textSecondary,
                             ),
@@ -214,7 +219,7 @@ class PedidoDetalleScreen extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${pedido.alimentos.length} productos',
+                  '${pedidoActual.alimentos.length} productos',
                   style: textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -226,7 +231,7 @@ class PedidoDetalleScreen extends StatelessWidget {
               height: AppSizes.spacingMd,
             ),
 
-            ...pedido.alimentos.map(
+            ...pedidoActual.alimentos.map(
               (alimento) {
                 final nombre = alimento['nombre'] as String;
                 final cantidad = alimento['cantidad'] as int;
@@ -391,12 +396,12 @@ class PedidoDetalleScreen extends StatelessWidget {
                     ),
                     Expanded(
                       child: Text(
-                        pedido.comentario.trim().isEmpty
+                        pedidoActual.comentario.trim().isEmpty
                             ? 'Sin comentarios'
-                            : pedido.comentario,
+                            : pedidoActual.comentario,
                         style: TextStyle(
                           height: 1.5,
-                          color: pedido.comentario.trim().isEmpty
+                          color: pedidoActual.comentario.trim().isEmpty
                               ? AppColors.textSecondary
                               : AppColors.textPrimary,
                         ),
@@ -444,7 +449,7 @@ class PedidoDetalleScreen extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      '\$${pedido.total.toStringAsFixed(0)}',
+                      '\$${pedidoActual.total.toStringAsFixed(0)}',
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w800,
@@ -457,7 +462,109 @@ class PedidoDetalleScreen extends StatelessWidget {
             ),
 
             const SizedBox(
-              height: AppSizes.spacingLg,
+              height: AppSizes.spacingXs,
+            ),
+
+            //Slader para confirma pedido
+            if (pedidoActual.estado == 'En camino') ...[
+              const SizedBox(
+                height: AppSizes.spacingLg,
+              ),
+              Card(
+                margin: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsets.all(
+                    AppSizes.spacingMd,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Confirma la entrega',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: AppSizes.spacingSm,
+                      ),
+                      const Text(
+                        'Cuando recibas tu pedido, desliza '
+                        'para confirmar la entrega.',
+                        style: TextStyle(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: AppSizes.spacingMd,
+                      ),
+                      ConfirmarEntregaSlider(
+                        onConfirmar: () async {
+                          final confirmar = await showDialog<bool>(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (_) => const ConfirmarEntregaDialog(),
+                          );
+
+                          if (confirmar != true || !context.mounted) {
+                            return;
+                          }
+
+                          context
+                              .read<PedidoProvider>()
+                              .confirmarEntrega(pedidoActual.id);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            if (pedidoActual.estado == 'Entregado') ...[
+              const SizedBox(
+                height: AppSizes.spacingLg,
+              ),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(
+                  AppSizes.spacingMd,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(
+                    AppSizes.radiusMedium,
+                  ),
+                  border: Border.all(
+                    color: Colors.green.withOpacity(0.30),
+                  ),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.check_circle_rounded,
+                      color: Colors.green,
+                    ),
+                    SizedBox(
+                      width: AppSizes.spacingSm,
+                    ),
+                    Expanded(
+                      child: Text(
+                        'Pedido entregado. Gracias por '
+                        'confirmar que lo recibiste.',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(
+              height: AppSizes.spacingXl,
             ),
           ],
         ),

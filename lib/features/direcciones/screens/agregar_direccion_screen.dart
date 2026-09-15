@@ -25,6 +25,8 @@ class _AgregarDireccionScreenState extends State<AgregarDireccionScreen> {
 
   late final TextEditingController codigoPostalController;
 
+  late final TextEditingController referenciaController;
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +50,9 @@ class _AgregarDireccionScreenState extends State<AgregarDireccionScreen> {
     codigoPostalController = TextEditingController(
       text: direccion?.codigoPostal ?? '',
     );
+
+    referenciaController =
+        TextEditingController(text: direccion?.referencia ?? '');
   }
 
   @override
@@ -116,6 +121,12 @@ class _AgregarDireccionScreenState extends State<AgregarDireccionScreen> {
             maxLength: 5,
           ),
           const SizedBox(height: 25),
+          TextField(
+            controller: referenciaController,
+            decoration: const InputDecoration(
+                labelText: "Referencia", border: OutlineInputBorder()),
+          ),
+          const SizedBox(height: 25),
           ElevatedButton.icon(
             icon: const Icon(Icons.save),
             label: Text(
@@ -144,6 +155,7 @@ class _AgregarDireccionScreenState extends State<AgregarDireccionScreen> {
                 numero: numeroController.text.trim(),
                 codigoPostal: codigoPostalController.text.trim(),
                 colonia: coloniaController.text.trim(),
+                referencia: referenciaController.text.trim(),
                 idComensal: estaEditando ? widget.direccion!.idComensal : 1,
                 principal: estaEditando ? widget.direccion!.principal : false,
               );
